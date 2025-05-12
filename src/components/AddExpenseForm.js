@@ -123,7 +123,7 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
             />
           </div>
           <div className="form-actions">
-            <button type="submit" className="btn btn-expense" id="submit-expense-button">
+            <button type="submit" className="btn btn-expense">
               {isEditing ? 'Update Expense' : 'Add Expense'}
             </button>
             <button

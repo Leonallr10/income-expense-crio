@@ -33,7 +33,7 @@ const AddBalanceForm = ({ onAddIncome, onClose }) => {
             />
           </div>
           <div className="form-actions">
-            <button type="submit" className="btn btn-income" id="submit-income-button">Add Balance</button>
+            <button type="submit" className="btn btn-income">Add Balance</button>
             <button
               type="button"
               className="btn"

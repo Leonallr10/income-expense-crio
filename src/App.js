@@ -96,8 +96,6 @@ const App = () => {
               type="button"
               className="btn btn-income"
               onClick={() => setShowAddBalanceModal(true)}
-              id="add-income-button"
-              style={{ display: 'block', margin: '10px auto' }}
             >
               + Add Income
             </button>
@@ -114,8 +112,6 @@ const App = () => {
                 setEditingExpense(null);
                 setShowAddExpenseModal(true);
               }}
-              id="add-expense-button"
-              style={{ display: 'block', margin: '10px auto' }}
             >
               + Add Expense
             </button>
