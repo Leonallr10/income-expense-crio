@@ -56,6 +56,7 @@ function App() {
       type: 'expense'
     };
 
+    console.log('New expense in App.js:', newExpense);
     setExpenses([newExpense, ...expenses]);
     setBalance(prevBalance => prevBalance - newExpense.amount);
     setShowExpenseModal(false);

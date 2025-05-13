@@ -78,7 +78,7 @@ const ExpenseList = ({ expenses, onDelete, onEdit }) => {
                 data-testid={`amount-${transaction.id}`}
                 id={`amount-${transaction.id}`}
               >
-                ₹{transaction.amount}
+                ₹{transaction.amount || 0}
               </div>
               <div className="transaction-actions">
                 <button

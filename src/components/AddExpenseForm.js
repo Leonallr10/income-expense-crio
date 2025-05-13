@@ -58,7 +58,9 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
       // Create a modified expense object with amount field for compatibility
       const modifiedExpense = {
         ...expense,
-        amount: amount
+        id: expenseToEdit.id,
+        amount: amount,
+        type: 'expense'
       };
       editExpense(modifiedExpense);
       enqueueSnackbar('Expense updated successfully!', { variant: 'success' });
@@ -66,7 +68,8 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
       // Create a modified expense object with amount field for compatibility
       const modifiedExpense = {
         ...expense,
-        amount: amount
+        amount: amount,
+        type: 'expense'
       };
       console.log('Adding expense:', modifiedExpense);
       addExpense(modifiedExpense);
