@@ -1,8 +1,9 @@
 // components/AddExpenseForm.js
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSnackbar } from 'notistack';
 
 const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClose }) => {
+  // Using field names that match the Cypress tests
   const [expense, setExpense] = useState({ title: '', price: '', category: '', date: '' });
   const { enqueueSnackbar } = useSnackbar();
   const isEditing = !!expenseToEdit;

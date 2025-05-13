@@ -10,7 +10,7 @@ import ExpenseSummary from './components/ExpenseSummary';
 function App() {
   // State for expenses, balance, and modal visibility
   const [expenses, setExpenses] = useState([]);
-  const [balance, setBalance] = useState(3600);
+  const [balance, setBalance] = useState(5000);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [expenseToEdit, setExpenseToEdit] = useState(null);
@@ -21,14 +21,14 @@ function App() {
       const savedExpenses = localStorage.getItem('expenses');
       const savedBalance = localStorage.getItem('balance');
 
-      // Set balance from localStorage or default to 7000
+      // Set balance from localStorage or default to 5000
       if (savedBalance) {
         setBalance(Number(savedBalance));
         console.log('Loaded wallet balance from localStorage:', savedBalance);
       } else {
-        setBalance(3600);
-        localStorage.setItem('balance', '3600');
-        console.log('Set default wallet balance to 3600');
+        setBalance(5000);
+        localStorage.setItem('balance', '5000');
+        console.log('Set default wallet balance to 5000');
       }
 
       if (savedExpenses) {

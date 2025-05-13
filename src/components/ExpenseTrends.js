@@ -1,5 +1,5 @@
 // components/ExpenseTrends.js
-import React from 'react';
+// No React import needed with modern JSX transform
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const ExpenseTrends = ({ expenses }) => {

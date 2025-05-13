@@ -1,17 +1,11 @@
 // components/ExpenseList.js
-import { useState } from 'react';
 import { FaUtensils, FaPlane, FaShoppingBag, FaFilm, FaBook, FaHeartbeat, FaFileInvoiceDollar, FaQuestion, FaMoneyBillWave } from 'react-icons/fa';
 import { FiEdit } from 'react-icons/fi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 
 const ExpenseList = ({ expenses, onDelete, onEdit }) => {
-  const [currentPage] = useState(1);
-  const itemsPerPage = 5;
-
-  // Get current expenses
-  const indexOfLastExpense = currentPage * itemsPerPage;
-  const indexOfFirstExpense = indexOfLastExpense - itemsPerPage;
-  const currentExpenses = expenses.slice(indexOfFirstExpense, indexOfLastExpense);
+  // Show all transactions without pagination
+  const currentExpenses = expenses;
 
   // Get icon based on category
   const getCategoryIcon = (category, type) => {
