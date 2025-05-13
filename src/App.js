@@ -10,7 +10,7 @@ import ExpenseSummary from './components/ExpenseSummary';
 function App() {
   // State for expenses, balance, and modal visibility
   const [expenses, setExpenses] = useState([]);
-  const [balance, setBalance] = useState(7000);
+  const [balance, setBalance] = useState(3600);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [expenseToEdit, setExpenseToEdit] = useState(null);
@@ -19,11 +19,17 @@ function App() {
   useEffect(() => {
     try {
       const savedExpenses = localStorage.getItem('expenses');
+      const savedBalance = localStorage.getItem('balance');
 
-      // Always set balance to 7000 regardless of what's in localStorage
-      setBalance(7000);
-      localStorage.setItem('balance', '7000');
-      console.log('Set wallet balance to 7000');
+      // Set balance from localStorage or default to 7000
+      if (savedBalance) {
+        setBalance(Number(savedBalance));
+        console.log('Loaded wallet balance from localStorage:', savedBalance);
+      } else {
+        setBalance(3600);
+        localStorage.setItem('balance', '3600');
+        console.log('Set default wallet balance to 3600');
+      }
 
       if (savedExpenses) {
         const parsedExpenses = JSON.parse(savedExpenses);
@@ -153,8 +159,6 @@ function App() {
         <div className="dashboard">
           <div className="dashboard-card wallet-card" data-testid="wallet-card">
             <WalletBalance balance={balance} />
-            <div id="balance-value" className="balance-value" data-testid="balance-value">{balance}</div>
-            <div id="wallet-balance-display" className="wallet-balance-display" data-testid="wallet-balance-display">{balance}</div>
             <button
               type="button"
               className="btn btn-income"
@@ -208,7 +212,7 @@ function App() {
           </div>
         </div>
 
-        <h2 className="section-heading" id="transactions-heading">Recent Transactions</h2>
+        <h2 className="section-heading" id="transactions-heading" data-testid="transactions-heading">Recent Transactions</h2>
         <div className="transactions-container" id="transactions-container">
           <ExpenseList
             expenses={allTransactions}
