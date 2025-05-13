@@ -10,7 +10,7 @@ import ExpenseSummary from './components/ExpenseSummary';
 function App() {
   // State for expenses, balance, and modal visibility
   const [expenses, setExpenses] = useState([]);
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState(7000);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [expenseToEdit, setExpenseToEdit] = useState(null);
@@ -19,18 +19,16 @@ function App() {
   useEffect(() => {
     try {
       const savedExpenses = localStorage.getItem('expenses');
-      const savedBalance = localStorage.getItem('balance');
+
+      // Always set balance to 7000 regardless of what's in localStorage
+      setBalance(7000);
+      localStorage.setItem('balance', '7000');
+      console.log('Set wallet balance to 7000');
 
       if (savedExpenses) {
         const parsedExpenses = JSON.parse(savedExpenses);
         setExpenses(parsedExpenses);
         console.log('Loaded expenses from localStorage:', parsedExpenses);
-      }
-
-      if (savedBalance) {
-        const parsedBalance = parseFloat(savedBalance);
-        setBalance(parsedBalance);
-        console.log('Loaded balance from localStorage:', parsedBalance);
       }
     } catch (error) {
       console.error('Error loading from localStorage:', error);
