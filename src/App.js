@@ -1,165 +1,211 @@
-// App.js
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { SnackbarProvider } from 'notistack';
-import AddBalanceForm from './components/AddBalanceForm';
+import './App.css';
+import WalletBalance from './components/WalletBalance';
 import AddExpenseForm from './components/AddExpenseForm';
+import AddBalanceForm from './components/AddBalanceForm';
 import ExpenseList from './components/ExpenseList';
 import ExpenseSummary from './components/ExpenseSummary';
-import ExpenseTrends from './components/ExpenseTrends';
-import WalletBalance from './components/WalletBalance';
-import './App.css';
 
-const App = () => {
-  const [balance, setBalance] = useState(5000);
+function App() {
+  // State for expenses, balance, and modal visibility
   const [expenses, setExpenses] = useState([]);
-  const [showAddBalanceModal, setShowAddBalanceModal] = useState(false);
-  const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
-  const [editingExpense, setEditingExpense] = useState(null);
-  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [balance, setBalance] = useState(0);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [showIncomeModal, setShowIncomeModal] = useState(false);
+  const [expenseToEdit, setExpenseToEdit] = useState(null);
 
-  // Load expenses and balance from localStorage
+  // Load data from localStorage on component mount
   useEffect(() => {
-    const storedBalance = localStorage.getItem('walletBalance');
-    const storedExpenses = JSON.parse(localStorage.getItem('expenses'));
-    if (storedBalance) setBalance(Number(storedBalance));
-    if (storedExpenses) setExpenses(storedExpenses);
+    const savedExpenses = localStorage.getItem('expenses');
+    const savedBalance = localStorage.getItem('balance');
+
+    if (savedExpenses) {
+      setExpenses(JSON.parse(savedExpenses));
+    }
+
+    if (savedBalance) {
+      setBalance(parseFloat(savedBalance));
+    }
   }, []);
 
-  // Calculate total expenses
+  // Save data to localStorage whenever expenses or balance changes
   useEffect(() => {
-    const total = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
-    setTotalExpenses(total);
-  }, [expenses]);
-
-  // Update localStorage whenever balance or expenses change
-  useEffect(() => {
-    localStorage.setItem('walletBalance', balance);
     localStorage.setItem('expenses', JSON.stringify(expenses));
-  }, [balance, expenses]);
+    localStorage.setItem('balance', balance.toString());
+  }, [expenses, balance]);
 
-  // Add an expense
+  // Add a new expense
   const addExpense = (expense) => {
     const newExpense = {
       ...expense,
-      id: Date.now(),
-      amount: Number(expense.amount)
+      id: Date.now().toString(),
+      amount: Number(expense.amount),
+      date: expense.date,
+      type: 'expense'
     };
-    setExpenses([...expenses, newExpense]);
-    setBalance(prevBalance => prevBalance - Number(expense.amount));
-    setShowAddExpenseModal(false);
+
+    setExpenses([newExpense, ...expenses]);
+    setBalance(prevBalance => prevBalance - newExpense.amount);
+    setShowExpenseModal(false);
+  };
+
+  // Add income to balance
+  const addIncome = (amount) => {
+    const newIncome = {
+      id: Date.now().toString(),
+      title: 'Income',
+      amount: amount,
+      date: new Date().toISOString().split('T')[0],
+      category: 'Income',
+      type: 'income'
+    };
+
+    setExpenses([newIncome, ...expenses]);
+    setBalance(prevBalance => prevBalance + amount);
+    setShowIncomeModal(false);
   };
 
   // Delete an expense
   const deleteExpense = (id) => {
-    const deletedExpense = expenses.find(exp => exp.id === id);
-    const updatedExpenses = expenses.filter(exp => exp.id !== id);
-    setExpenses(updatedExpenses);
-    setBalance(prevBalance => prevBalance + Number(deletedExpense.amount));
+    const expenseToDelete = expenses.find(expense => expense.id === id);
+
+    if (expenseToDelete) {
+      // If it's an expense, add the amount back to balance
+      // If it's income, subtract the amount from balance
+      const balanceAdjustment = expenseToDelete.type === 'expense' ?
+        expenseToDelete.amount : -expenseToDelete.amount;
+
+      setBalance(prevBalance => prevBalance + balanceAdjustment);
+      setExpenses(expenses.filter(expense => expense.id !== id));
+    }
   };
 
-  // Start editing an expense
-  const startEditExpense = (expense) => {
-    setEditingExpense(expense);
-    setShowAddExpenseModal(true);
+  // Edit an expense
+  const editExpense = (updatedExpense) => {
+    const originalExpense = expenses.find(expense => expense.id === updatedExpense.id);
+    const amountDifference = originalExpense.amount - Number(updatedExpense.amount);
+
+    setExpenses(expenses.map(expense =>
+      expense.id === updatedExpense.id ?
+        { ...updatedExpense, amount: Number(updatedExpense.amount) } :
+        expense
+    ));
+
+    setBalance(prevBalance => prevBalance + amountDifference);
+    setExpenseToEdit(null);
+    setShowExpenseModal(false);
   };
 
-  // Save edited expense
-  const saveEditedExpense = (updatedExpense) => {
-    const oldAmount = expenses.find(exp => exp.id === updatedExpense.id).amount;
-    const newAmount = Number(updatedExpense.amount);
+  // Handle edit button click
+  const handleEditExpense = (expense) => {
+    setExpenseToEdit(expense);
+    setShowExpenseModal(true);
+  };
 
-    const updatedExpenses = expenses.map(exp =>
-      exp.id === updatedExpense.id ? {...updatedExpense, amount: newAmount} : exp
+  // Get all transactions (expenses and incomes)
+  const allTransactions = expenses;
+
+  // Filter expenses by category
+  const getExpensesByCategory = (category) => {
+    return expenses.filter(expense =>
+      expense.type === 'expense' && expense.category === category
     );
-
-    setExpenses(updatedExpenses);
-    setBalance(prevBalance => prevBalance + oldAmount - newAmount);
-    setEditingExpense(null);
-    setShowAddExpenseModal(false);
   };
 
-  // Add income to wallet balance
-  const addIncome = (amount) => {
-    setBalance(prevBalance => prevBalance + Number(amount));
-    setShowAddBalanceModal(false);
+  // Get total expenses
+  const getTotalExpenses = () => {
+    return expenses
+      .filter(transaction => transaction.type === 'expense')
+      .reduce((total, expense) => total + expense.amount, 0);
+  };
+
+  // Get total income
+  const getTotalIncome = () => {
+    return expenses
+      .filter(transaction => transaction.type === 'income')
+      .reduce((total, income) => total + income.amount, 0);
   };
 
   return (
     <SnackbarProvider maxSnack={3}>
       <div className="app-container">
-        <h1>Expense Tracker</h1>
+        <header className="app-header">
+          <h1>Expense Tracker</h1>
+        </header>
 
         <div className="dashboard">
-          <div className="wallet-card card">
+          <div className="dashboard-card wallet-card">
             <WalletBalance balance={balance} />
             <button
               type="button"
               className="btn btn-income"
-              onClick={() => setShowAddBalanceModal(true)}
+              onClick={() => setShowIncomeModal(true)}
             >
               + Add Income
             </button>
           </div>
 
-          <div className="expenses-card card">
+          <div className="dashboard-card expenses-card">
             <div className="expenses-amount">
-              Expenses: <span className="amount">₹{totalExpenses.toFixed(2)}</span>
+              Expenses: <span className="amount">₹{getTotalExpenses()}</span>
             </div>
             <button
               type="button"
               className="btn btn-expense"
               onClick={() => {
-                setEditingExpense(null);
-                setShowAddExpenseModal(true);
+                setExpenseToEdit(null);
+                setShowExpenseModal(true);
               }}
             >
               + Add Expense
             </button>
           </div>
 
-          <div className="summary-card card">
-            <ExpenseSummary expenses={expenses} />
+          <div className="dashboard-card chart-card">
+            <div className="pie-chart-container">
+              <ExpenseSummary
+                totalExpenses={getTotalExpenses()}
+                totalIncome={getTotalIncome()}
+                foodExpenses={getExpensesByCategory('Food').reduce((sum, exp) => sum + exp.amount, 0)}
+                travelExpenses={getExpensesByCategory('Travel').reduce((sum, exp) => sum + exp.amount, 0)}
+                entertainmentExpenses={getExpensesByCategory('Entertainment').reduce((sum, exp) => sum + exp.amount, 0)}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="content-section">
-          <div className="transactions-container card">
-            <h2 className="section-title">Recent Transactions</h2>
-            <ExpenseList
-              expenses={expenses}
-              onDelete={deleteExpense}
-              onEdit={startEditExpense}
-            />
-          </div>
-
-          <div className="trends-container card">
-            <h2 className="section-title">Top Expenses</h2>
-            <ExpenseTrends expenses={expenses} />
-          </div>
+        <h2 className="section-heading">Recent Transactions</h2>
+        <div className="transactions-container">
+          <ExpenseList
+            expenses={allTransactions}
+            onDelete={deleteExpense}
+            onEdit={handleEditExpense}
+          />
         </div>
 
-        {showAddBalanceModal && (
-          <AddBalanceForm
-            onAddIncome={addIncome}
-            onClose={() => setShowAddBalanceModal(false)}
+        {showExpenseModal && (
+          <AddExpenseForm
+            addExpense={addExpense}
+            editExpense={editExpense}
+            expenseToEdit={expenseToEdit}
+            balance={balance}
+            onClose={() => {
+              setShowExpenseModal(false);
+              setExpenseToEdit(null);
+            }}
           />
         )}
 
-        {showAddExpenseModal && (
-          <AddExpenseForm
-            addExpense={addExpense}
-            balance={balance}
-            editExpense={saveEditedExpense}
-            expenseToEdit={editingExpense}
-            onClose={() => {
-              setShowAddExpenseModal(false);
-              setEditingExpense(null);
-            }}
+        {showIncomeModal && (
+          <AddBalanceForm
+            onAddIncome={addIncome}
+            onClose={() => setShowIncomeModal(false)}
           />
         )}
       </div>
     </SnackbarProvider>
   );
-};
+}
 
 export default App;

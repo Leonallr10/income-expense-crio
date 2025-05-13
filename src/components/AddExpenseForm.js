@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useSnackbar } from 'notistack';
 
 const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClose }) => {
-  const [expense, setExpense] = useState({ title: '', amount: '', category: '', date: '' });
+  const [expense, setExpense] = useState({ title: '', price: '', category: '', date: '' });
   const { enqueueSnackbar } = useSnackbar();
   const isEditing = !!expenseToEdit;
 
@@ -12,7 +12,7 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
     if (expenseToEdit) {
       setExpense({
         ...expenseToEdit,
-        amount: expenseToEdit.amount.toString()
+        price: expenseToEdit.amount.toString()
       });
     }
   }, [expenseToEdit]);
@@ -26,12 +26,12 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
     e.preventDefault();
 
     // Validate all fields are filled
-    if (!expense.title || !expense.amount || !expense.category || !expense.date) {
+    if (!expense.title || !expense.price || !expense.category || !expense.date) {
       enqueueSnackbar('Please fill all required fields', { variant: 'error' });
       return;
     }
 
-    const amount = Number(expense.amount);
+    const amount = Number(expense.price);
 
     // Validate amount is a positive number
     if (isNaN(amount) || amount <= 0) {
@@ -55,15 +55,25 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
         return;
       }
 
-      editExpense(expense);
+      // Create a modified expense object with amount field for compatibility
+      const modifiedExpense = {
+        ...expense,
+        amount: amount
+      };
+      editExpense(modifiedExpense);
       enqueueSnackbar('Expense updated successfully!', { variant: 'success' });
     } else {
-      addExpense(expense);
+      // Create a modified expense object with amount field for compatibility
+      const modifiedExpense = {
+        ...expense,
+        amount: amount
+      };
+      addExpense(modifiedExpense);
       enqueueSnackbar('Expense added successfully!', { variant: 'success' });
     }
 
     // Reset form
-    setExpense({ title: '', amount: '', category: '', date: '' });
+    setExpense({ title: '', price: '', category: '', date: '' });
   };
 
   return (
@@ -85,9 +95,9 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
           <div className="form-group">
             <input
               type="number"
-              name="amount"
+              name="price"
               placeholder="Price"
-              value={expense.amount}
+              value={expense.price}
               onChange={handleChange}
               className="form-control"
               required

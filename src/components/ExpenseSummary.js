@@ -1,20 +1,26 @@
 // components/ExpenseSummary.js
-import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
-const ExpenseSummary = ({ expenses }) => {
+const ExpenseSummary = ({ totalExpenses, foodExpenses, travelExpenses, entertainmentExpenses }) => {
   // Define colors for different categories
-  const COLORS = ['#9c88ff', '#fd9644', '#fdcb6e', '#55efc4', '#74b9ff', '#ff7675', '#a29bfe', '#fab1a0'];
+  const COLORS = {
+    Food: '#9c88ff',
+    Travel: '#fdcb6e',
+    Entertainment: '#fd9644',
+    Other: '#55efc4'
+  };
 
-  // Get unique categories and calculate total for each
-  const categories = [...new Set(expenses.map((exp) => exp.category))];
-  const data = categories.map((category, index) => ({
-    name: category,
-    value: expenses
-      .filter((exp) => exp.category === category)
-      .reduce((sum, exp) => sum + Number(exp.amount), 0),
-    color: COLORS[index % COLORS.length]
-  }));
+  // Create data for pie chart
+  const data = [
+    { name: 'Food', value: foodExpenses, color: COLORS.Food },
+    { name: 'Travel', value: travelExpenses, color: COLORS.Travel },
+    { name: 'Entertainment', value: entertainmentExpenses, color: COLORS.Entertainment },
+    {
+      name: 'Other',
+      value: totalExpenses - (foodExpenses + travelExpenses + entertainmentExpenses),
+      color: COLORS.Other
+    }
+  ].filter(item => item.value > 0); // Only include categories with values > 0
 
   // Calculate percentages for each category
   const total = data.reduce((sum, item) => sum + item.value, 0);
@@ -22,22 +28,14 @@ const ExpenseSummary = ({ expenses }) => {
     item.percentage = total > 0 ? Math.round((item.value / total) * 100) : 0;
   });
 
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc' }}>
-          <p className="label">{`${payload[0].name}: ₹${payload[0].value.toFixed(2)}`}</p>
-          <p className="percentage">{`${payload[0].payload.percentage}%`}</p>
-        </div>
-      );
-    }
-    return null;
-  };
+  // If no data, show a default pie chart with 100% Food
+  if (data.length === 0) {
+    data.push({ name: 'Food', value: 1, color: COLORS.Food, percentage: 100 });
+  }
 
   return (
-    <div className="expense-summary">
-      <ResponsiveContainer width="100%" height={200}>
+    <>
+      <ResponsiveContainer width="100%" height={150}>
         <PieChart>
           <Pie
             data={data}
@@ -45,9 +43,9 @@ const ExpenseSummary = ({ expenses }) => {
             nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius={80}
+            outerRadius={60}
             innerRadius={0}
-            paddingAngle={2}
+            paddingAngle={0}
             label={({ percentage }) => `${percentage}%`}
             labelLine={false}
           >
@@ -55,7 +53,6 @@ const ExpenseSummary = ({ expenses }) => {
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip />} />
         </PieChart>
       </ResponsiveContainer>
       <div className="legend">
@@ -69,7 +66,7 @@ const ExpenseSummary = ({ expenses }) => {
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 };
 
