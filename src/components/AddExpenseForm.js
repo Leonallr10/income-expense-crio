@@ -68,6 +68,7 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
         ...expense,
         amount: amount
       };
+      console.log('Adding expense:', modifiedExpense);
       addExpense(modifiedExpense);
       enqueueSnackbar('Expense added successfully!', { variant: 'success' });
     }
@@ -80,7 +81,7 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
     <div className="modal-overlay">
       <div className="modal-content">
         <h2 className="modal-title">{isEditing ? 'Edit Expense' : 'Add Expense'}</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-testid="expense-form">
           <div className="form-group">
             <input
               type="text"
@@ -89,6 +90,8 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
               value={expense.title}
               onChange={handleChange}
               className="form-control"
+              data-testid="expense-title-input"
+              id="title"
               required
             />
           </div>
@@ -100,6 +103,8 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
               value={expense.price}
               onChange={handleChange}
               className="form-control"
+              data-testid="expense-amount-input"
+              id="price"
               required
             />
           </div>
@@ -109,6 +114,8 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
               value={expense.category}
               onChange={handleChange}
               className="form-control"
+              data-testid="expense-category-select"
+              id="category"
               required
             >
               <option value="">Select Category</option>
@@ -119,6 +126,11 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
               <option value="Bills">Bills</option>
               <option value="Health">Health</option>
               <option value="Education">Education</option>
+              <option value="Dinner">Dinner</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Hotel Stay">Hotel Stay</option>
+              <option value="Brunch">Brunch</option>
+              <option value="Gym">Gym</option>
               <option value="Other">Other</option>
             </select>
           </div>
@@ -129,11 +141,13 @@ const AddExpenseForm = ({ addExpense, editExpense, expenseToEdit, balance, onClo
               value={expense.date}
               onChange={handleChange}
               className="form-control"
+              data-testid="expense-date-input"
+              id="date"
               required
             />
           </div>
           <div className="form-actions">
-            <button type="submit" className="btn btn-expense">
+            <button type="submit" className="btn btn-expense" data-testid="submit-expense-btn" id="add-expense-submit">
               {isEditing ? 'Update Expense' : 'Add Expense'}
             </button>
             <button

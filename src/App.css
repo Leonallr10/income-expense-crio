@@ -81,6 +81,22 @@ h2.section-heading {
   color: var(--accent-green);
 }
 
+.balance-value {
+  font-size: 16px;
+  color: var(--accent-green);
+  margin-bottom: 10px;
+}
+
+.wallet-balance-display {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--accent-green);
+  margin-bottom: 15px;
+  padding: 5px 10px;
+  border: 2px solid var(--accent-green);
+  border-radius: 5px;
+}
+
 .expenses-amount {
   font-size: 24px;
   font-weight: bold;
@@ -186,6 +202,13 @@ h2.section-heading {
 .transaction-date {
   font-size: 0.8rem;
   color: #888;
+}
+
+.transaction-category {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: bold;
+  margin-top: 2px;
 }
 
 .transaction-amount {

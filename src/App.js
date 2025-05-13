@@ -17,22 +17,35 @@ function App() {
 
   // Load data from localStorage on component mount
   useEffect(() => {
-    const savedExpenses = localStorage.getItem('expenses');
-    const savedBalance = localStorage.getItem('balance');
+    try {
+      const savedExpenses = localStorage.getItem('expenses');
+      const savedBalance = localStorage.getItem('balance');
 
-    if (savedExpenses) {
-      setExpenses(JSON.parse(savedExpenses));
-    }
+      if (savedExpenses) {
+        const parsedExpenses = JSON.parse(savedExpenses);
+        setExpenses(parsedExpenses);
+        console.log('Loaded expenses from localStorage:', parsedExpenses);
+      }
 
-    if (savedBalance) {
-      setBalance(parseFloat(savedBalance));
+      if (savedBalance) {
+        const parsedBalance = parseFloat(savedBalance);
+        setBalance(parsedBalance);
+        console.log('Loaded balance from localStorage:', parsedBalance);
+      }
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
     }
   }, []);
 
   // Save data to localStorage whenever expenses or balance changes
   useEffect(() => {
-    localStorage.setItem('expenses', JSON.stringify(expenses));
-    localStorage.setItem('balance', balance.toString());
+    try {
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      localStorage.setItem('balance', balance.toString());
+      console.log('Data saved to localStorage:', { expenses, balance });
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
   }, [expenses, balance]);
 
   // Add a new expense
@@ -61,8 +74,12 @@ function App() {
       type: 'income'
     };
 
+    console.log('Adding income transaction:', newIncome);
     setExpenses([newIncome, ...expenses]);
-    setBalance(prevBalance => prevBalance + amount);
+
+    const newBalance = balance + amount;
+    console.log('Updating balance from', balance, 'to', newBalance);
+    setBalance(newBalance);
     setShowIncomeModal(false);
   };
 
@@ -135,12 +152,16 @@ function App() {
         </header>
 
         <div className="dashboard">
-          <div className="dashboard-card wallet-card">
+          <div className="dashboard-card wallet-card" data-testid="wallet-card">
             <WalletBalance balance={balance} />
+            <div id="balance-value" className="balance-value" data-testid="balance-value">{balance}</div>
+            <div id="wallet-balance-display" className="wallet-balance-display" data-testid="wallet-balance-display">{balance}</div>
             <button
               type="button"
               className="btn btn-income"
               onClick={() => setShowIncomeModal(true)}
+              data-testid="add-income-btn"
+              id="add-income-btn"
             >
               + Add Income
             </button>
@@ -157,6 +178,8 @@ function App() {
                 setExpenseToEdit(null);
                 setShowExpenseModal(true);
               }}
+              data-testid="add-expense-btn"
+              id="add-expense-btn"
             >
               + Add Expense
             </button>
@@ -167,16 +190,27 @@ function App() {
               <ExpenseSummary
                 totalExpenses={getTotalExpenses()}
                 totalIncome={getTotalIncome()}
-                foodExpenses={getExpensesByCategory('Food').reduce((sum, exp) => sum + exp.amount, 0)}
-                travelExpenses={getExpensesByCategory('Travel').reduce((sum, exp) => sum + exp.amount, 0)}
-                entertainmentExpenses={getExpensesByCategory('Entertainment').reduce((sum, exp) => sum + exp.amount, 0)}
+                foodExpenses={
+                  getExpensesByCategory('Food').reduce((sum, exp) => sum + exp.amount, 0) +
+                  getExpensesByCategory('Dinner').reduce((sum, exp) => sum + exp.amount, 0) +
+                  getExpensesByCategory('Lunch').reduce((sum, exp) => sum + exp.amount, 0) +
+                  getExpensesByCategory('Brunch').reduce((sum, exp) => sum + exp.amount, 0)
+                }
+                travelExpenses={
+                  getExpensesByCategory('Travel').reduce((sum, exp) => sum + exp.amount, 0) +
+                  getExpensesByCategory('Hotel Stay').reduce((sum, exp) => sum + exp.amount, 0)
+                }
+                entertainmentExpenses={
+                  getExpensesByCategory('Entertainment').reduce((sum, exp) => sum + exp.amount, 0) +
+                  getExpensesByCategory('Gym').reduce((sum, exp) => sum + exp.amount, 0)
+                }
               />
             </div>
           </div>
         </div>
 
-        <h2 className="section-heading">Recent Transactions</h2>
-        <div className="transactions-container">
+        <h2 className="section-heading" id="transactions-heading">Recent Transactions</h2>
+        <div className="transactions-container" id="transactions-container">
           <ExpenseList
             expenses={allTransactions}
             onDelete={deleteExpense}

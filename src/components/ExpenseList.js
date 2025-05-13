@@ -34,19 +34,34 @@ const ExpenseList = ({ expenses, onDelete, onEdit }) => {
         return <FaHeartbeat />;
       case 'Bills':
         return <FaFileInvoiceDollar />;
+      case 'Dinner':
+        return <FaUtensils />;
+      case 'Lunch':
+        return <FaUtensils />;
+      case 'Brunch':
+        return <FaUtensils />;
+      case 'Hotel Stay':
+        return <FaPlane />;
+      case 'Gym':
+        return <FaHeartbeat />;
       default:
         return <FaQuestion />;
     }
   };
 
   return (
-    <div>
+    <div data-testid="transaction-list-container" id="transactions">
+      <h3>Transactions</h3>
       <ul className="transaction-list">
         {currentExpenses.length > 0 ? (
           currentExpenses.map((transaction) => (
             <li
               key={transaction.id}
               className={`transaction-item ${transaction.type === 'income' ? 'income' : 'expense'}`}
+              data-testid={`transaction-${transaction.id}`}
+              data-category={transaction.category}
+              data-type={transaction.type}
+              id={`transaction-${transaction.category}-${transaction.id}`}
             >
               <div className="transaction-info">
                 <div className="transaction-icon">
@@ -55,9 +70,14 @@ const ExpenseList = ({ expenses, onDelete, onEdit }) => {
                 <div className="transaction-details">
                   <div className="transaction-title">{transaction.title}</div>
                   <div className="transaction-date">{transaction.date}</div>
+                  <div className="transaction-category">{transaction.category}</div>
                 </div>
               </div>
-              <div className={`transaction-amount ${transaction.type === 'income' ? 'income-amount' : 'expense-amount'}`}>
+              <div
+                className={`transaction-amount ${transaction.type === 'income' ? 'income-amount' : 'expense-amount'}`}
+                data-testid={`amount-${transaction.id}`}
+                id={`amount-${transaction.id}`}
+              >
                 ₹{transaction.amount}
               </div>
               <div className="transaction-actions">
